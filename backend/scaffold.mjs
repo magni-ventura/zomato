@@ -133,7 +133,7 @@ for(const s of services){
   );
 }
 compose.push("  gateway:","    image: nginx:1.27-alpine","    restart: unless-stopped",'    ports: ["8080:80"]','    volumes: ["./gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro"]',"    depends_on:");
-for(const s of services)compose.push("      "+s[0]+": { condition: service_healthy }");
+for(const s of services)compose.push("      "+s[0]+": { condition: service_started }");
 compose.push("volumes:","  postgres_data:","  redis_data:");
 write("docker-compose.yml",compose.join("\n"));
 
