@@ -111,7 +111,7 @@ const compose = [
 "    volumes: [redis_data:/data]"
 ];
 for(const s of services){
-compose.push("  "+s[0]+":","    build:","      context: .","      dockerfile: services/"+s[0]+"/Dockerfile","    restart: unless-stopped","    environment:","      NODE_ENV: production","      SERVICE_NAME: "+s[0],"      SERVICE_BASE_PATH: "+s[3],"      PORT: "+s[2],"      DATABASE_URL: postgresql://"+s[4]+"_user:dev_"+s[4]+"_password@postgres:5432/"+s[4]+"_db","      AMQP_URL: amqp://"+dollar+"{RABBITMQ_DEFAULT_USER:-fuel_dev}:"+dollar+"{RABBITMQ_DEFAULT_PASS:-fuel_dev_only_change_me}@rabbitmq:5672","      JWT_ACCESS_SECRET: "+dollar+"{JWT_ACCESS_SECRET:-local_access_secret_change_before_deployment}",'    ports: ["'+s[2]+":"+s[2]+'"]',"    depends_on:","      postgres: { condition: service_healthy }","      rabbitmq: { condition: service_healthy }","    healthcheck:",'      test: ["CMD","node","-e","fetch(\\'http://127.0.0.1:'+s[2]+'/health/ready\\').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]',"      interval: 15s","      timeout: 5s","      retries: 10");
+      test: ["CMD","node","-e","fetch(\\'http://127.0.0.1:'+s[2]+'/health/ready\\').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]',
 }
 compose.push("  gateway:","    image: nginx:1.27-alpine","    restart: unless-stopped",'    ports: ["8080:80"]','    volumes: ["./gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro"]',"    depends_on:");
 for(const s of services)compose.push("      "+s[0]+": { condition: service_healthy }");
@@ -159,7 +159,7 @@ write("docs/EVENT-CONTRACTS.md",[
 ].join("\n"));
 
 for(const s of services){
-const packageJson={name:"@fuel-platform/"+s[0],version:"1.0.0",private:true,type:"module",scripts:{start:"node src/server.js",dev:"node --watch src/server.js"},dependencies:{"@fuel-platform/event-bus":"file:../../packages/event-bus",cors:"^2.8.5",express:"^4.21.2",helmet:"^8.0.0","pino-http":"^10.4.0",pg:"^8.13.1"}};
+const packageJson={name:"@fuel-platform/"+s[0],version:"1.0.0",private:true,type:"module",scripts:{start:"node src/server.js",dev:"node --watch src/server.js"},dependencies:{"@fuel-platform/event-bus":"file:../packages/event-bus",cors:"^2.8.5",express:"^4.21.2",helmet:"^8.0.0","pino-http":"^10.4.0",pg:"^8.13.1"}};
 write("services/"+s[0]+"/package.json",JSON.stringify(packageJson,null,2));
 write("services/"+s[0]+"/Dockerfile",["FROM node:22-alpine","ENV NODE_ENV=production","WORKDIR /app","COPY packages/event-bus ./packages/event-bus","COPY services/"+s[0]+"/package.json ./service/package.json","WORKDIR /app/service","RUN npm install --omit=dev","COPY services/"+s[0]+"/src ./src","COPY services/"+s[0]+"/db ./db","EXPOSE "+s[2],'CMD ["npm","start"]'].join("\n"));
 write("services/"+s[0]+"/src/server.js",[
