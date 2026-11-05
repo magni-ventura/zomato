@@ -111,7 +111,7 @@ const compose = [
 "    volumes: [redis_data:/data]"
 ];
 for(const s of services){
-      test: ["CMD","node","-e","fetch(\\'http://127.0.0.1:'+s[2]+'/health/ready\\').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]',
+compose.push("      test: [\"CMD\",\"node\",\"-e\",\"fetch('http://127.0.0.1:"+s[2]+"/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\"]");
 }
 compose.push("  gateway:","    image: nginx:1.27-alpine","    restart: unless-stopped",'    ports: ["8080:80"]','    volumes: ["./gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro"]',"    depends_on:");
 for(const s of services)compose.push("      "+s[0]+": { condition: service_healthy }");
